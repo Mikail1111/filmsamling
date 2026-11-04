@@ -82,6 +82,10 @@ public class MovieCollection
 
         return result;
     }
+
+    public int getNumberOfMovies() {
+        return movies.size();
+    }
 }
 
 

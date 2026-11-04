@@ -45,5 +45,37 @@ public class MovieTest
 
         assertEquals(26, days);
     }
+
+    @Test
+    void constructorSetsAllAttributes() {
+        // Arrange + Act
+        Movie movie = new Movie(
+                "Jaws", "Steven Spielberg",
+                1975, true, 124, "Thriller"
+        );
+
+        // Assert
+        assertEquals("Jaws", movie.getTitle());
+        assertEquals("Steven Spielberg", movie.getDirector());
+        assertEquals(1975, movie.getYearCreated());
+        assertTrue(movie.isInColor());
+        assertEquals(124, movie.getLengthInMinutes());
+        assertEquals("Thriller", movie.getGenre());
+    }
+
+    @Test
+    void setTitleChangesTitle() {
+        // Arrange
+        Movie movie = new Movie(
+                "Jaws", "Steven Spielberg",
+                1975, true, 124, "Thriller"
+        );
+
+        // Act
+        movie.setTitle("Dødens gab");
+
+        // Assert
+        assertEquals("Dødens gab", movie.getTitle());
+    }
 }
 
