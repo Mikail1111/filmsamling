@@ -2,11 +2,16 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 
 public class UserInterface
 {
     private Controller controller;
     private Scanner scanner;
+    private final DateTimeFormatter dateFormatter =
+            DateTimeFormatter.ofPattern("dd-MM-uuuu")
+                    .withResolverStyle(ResolverStyle.STRICT);
 
     public UserInterface() {
         controller = new Controller();
@@ -59,7 +64,7 @@ public class UserInterface
         System.out.println("3. Søg efter film");
         System.out.println("4. Rediger film");
         System.out.println("5. Slet film");
-        System.out.println("6. Markér en film som set i dag");
+        System.out.println("6. Markér en film som set");
         System.out.println("7. Find film, du ikke har set længe");
         System.out.println("0. Afslut");
         System.out.print("Vælg: ");
@@ -81,10 +86,17 @@ public class UserInterface
         System.out.print("Genre: ");
         String genre = scanner.nextLine();
 
-        controller.addMovie(title, director, year,
-                inColor, length, genre);
+        try {
+            controller.addMovie(title, director, year,
+                    inColor, length, genre);
 
-        System.out.println("Filmen er blevet tilføjet!");
+            System.out.println("Filmen er blevet tilføjet!");
+
+        } catch (IllegalArgumentException e) {
+            System.out.println(
+                    "Filmen blev ikke oprettet: " + e.getMessage()
+            );
+        }
     }
 
     private void showAllMovies() {
@@ -159,13 +171,20 @@ public class UserInterface
             genre = movie.getGenre();
         }
 
-        boolean success = controller.editMovie(movie, title,
-                director, year, inColor, length, genre);
+        try {
+            boolean success = controller.editMovie(movie, title,
+                    director, year, inColor, length, genre);
 
-        if (success) {
-            System.out.println("Filmen er blevet opdateret!");
-        } else {
-            System.out.println("Filmen kunne ikke opdateres.");
+            if (success) {
+                System.out.println("Filmen er blevet opdateret!");
+            } else {
+                System.out.println("Filmen kunne ikke opdateres.");
+            }
+
+        } catch (IllegalArgumentException e) {
+            System.out.println(
+                    "Filmen blev ikke opdateret: " + e.getMessage()
+            );
         }
     }
 
@@ -267,14 +286,24 @@ public class UserInterface
             return;
         }
 
-        controller.markAsWatched(movie);
+        LocalDate date = readDate(
+                "Hvornår så du den? (dd-mm-åååå, Enter = i dag): "
+        );
 
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        try {
+            controller.markAsWatched(movie, date);
 
-        System.out.println(movie.getTitle()
-                + " er markeret som set "
-                + movie.getLastWatched().format(formatter) + ".");
+            System.out.println(
+                    movie.getTitle() + " er markeret som set "
+                            + date.format(dateFormatter) + "."
+            );
+
+        } catch (IllegalArgumentException e) {
+            System.out.println(
+                    "Filmen blev ikke markeret som set: "
+                            + e.getMessage()
+            );
+        }
     }
 
     private void showMoviesNotWatchedForDays() {
@@ -374,6 +403,27 @@ public class UserInterface
             }
 
             System.out.println("Svar ja eller nej, eller tryk Enter for at beholde den gamle værdi.");
+        }
+    }
+    private LocalDate readDate(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return LocalDate.now();
+            }
+
+            try {
+                return LocalDate.parse(input, dateFormatter);
+
+            } catch (DateTimeParseException e) {
+                System.out.println(
+                        " " + input
+                                + " er ikke en dato på formen "
+                                + "dd-mm-åååå. Prøv igen."
+                );
+            }
         }
     }
 }

@@ -187,4 +187,27 @@ public class MovieCollectionTest {
         assertEquals(1, result.size());
         assertEquals("Jaws", result.get(0).getTitle());
     }
+    @Test
+    void editWithInvalidValueChangesNothing() {
+        // Arrange
+        Movie casablanca =
+                collection.searchMovies("Casablanca").get(0);
+
+        // Act
+        assertThrows(IllegalArgumentException.class,
+                () -> collection.editMovie(
+                        casablanca,
+                        "Casablanca 2",
+                        "Michael Curtiz",
+                        1800,
+                        false,
+                        102,
+                        "Drama"
+                )
+        );
+
+        // Assert
+        assertEquals("Casablanca", casablanca.getTitle());
+        assertEquals(1942, casablanca.getYearCreated());
+    }
 }

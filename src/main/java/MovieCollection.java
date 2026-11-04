@@ -46,7 +46,7 @@ public class MovieCollection
 
 
     // Her redigere vi en film
-    public boolean editMovie(Movie movie, String title, String director, int yearCreated, boolean inColor, int lenghtInMinutes, String genre)
+    public boolean editMovie(Movie movie, String title, String director, int yearCreated, boolean inColor, int lengthInMinutes, String genre)
     {
 
         if (!movies.contains(movie))
@@ -54,11 +54,16 @@ public class MovieCollection
             return false;
         }
 
+        // Tjek ALLE nye værdier, før den oprindelige film ændres
+        new Movie(title, director, yearCreated,
+                inColor, lengthInMinutes, genre);
+
+        // Alle værdier er gyldige, så filmen kan redigeres
         movie.setTitle(title);
         movie.setDirector(director);
         movie.setYearCreated(yearCreated);
         movie.setInColor(inColor);
-        movie.setLengthInMinutes(lenghtInMinutes);
+        movie.setLengthInMinutes(lengthInMinutes);
         movie.setGenre(genre);
 
         return true;

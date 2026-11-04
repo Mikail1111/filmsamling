@@ -44,10 +44,10 @@ public class Controller
     }
 
     // Her kan vi finde film der ikke er blevet set længe
-    public void markAsWatched(Movie movie) {
-        movie.markAsWatched(LocalDate.now());
+    public void markAsWatched(Movie movie, LocalDate date)
+    {
+        movie.markAsWatched(date);
     }
-
     public ArrayList<Movie> getMoviesNotWatchedForDays(int days) {
         LocalDate limit = LocalDate.now().minusDays(days);
 

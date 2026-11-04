@@ -77,5 +77,69 @@ public class MovieTest
         // Assert
         assertEquals("Dødens gab", movie.getTitle());
     }
+    @Test
+    void emptyTitleIsRejected() {
+        // En film må ikke have en tom titel
+        assertThrows(IllegalArgumentException.class,
+                () -> new Movie("", "Steven Spielberg",
+                        1975, true, 124, "Thriller"));
+    }
+
+    @Test
+    void movieYearBoundaryIsValidated() {
+        // 1887 skal afvises
+        assertThrows(IllegalArgumentException.class,
+                () -> new Movie("Jaws", "Steven Spielberg",
+                        1887, true, 124, "Thriller"));
+
+        // 1888 skal accepteres
+        Movie movie = new Movie("Jaws", "Steven Spielberg",
+                1888, true, 124, "Thriller");
+
+        assertEquals(1888, movie.getYearCreated());
+    }
+
+    @Test
+    void yearTwoYearsInFutureIsRejected() {
+        int futureYear = LocalDate.now().getYear() + 2;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new Movie("Jaws", "Steven Spielberg",
+                        futureYear, true, 124, "Thriller"));
+    }
+
+    @Test
+    void zeroLengthIsRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Movie("Jaws", "Steven Spielberg",
+                        1975, true, 0, "Thriller"));
+    }
+
+    @Test
+    void invalidSetterKeepsOldValue() {
+        // Arrange
+        Movie movie = new Movie("Jaws", "Steven Spielberg",
+                1975, true, 124, "Thriller");
+
+        // Act
+        assertThrows(IllegalArgumentException.class,
+                () -> movie.setLengthInMinutes(0));
+
+        // Assert
+        assertEquals(124, movie.getLengthInMinutes());
+    }
+
+    @Test
+    void futureWatchedDateIsRejected() {
+        Movie movie = new Movie("Jaws", "Steven Spielberg",
+                1975, true, 124, "Thriller");
+
+        LocalDate futureDate = LocalDate.now().plusYears(2);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> movie.markAsWatched(futureDate));
+
+        assertFalse(movie.hasBeenWatched());
+    }
 }
 
