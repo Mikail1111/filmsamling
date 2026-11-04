@@ -3,7 +3,7 @@ package domainmodel;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class Movie
+public class Movie implements Comparable<Movie>
 {
     private static final int FIRST_MOVIE_YEAR = 1888;
 
@@ -125,6 +125,10 @@ public class Movie
 
     public long getDaysSinceWatched(LocalDate today) {
         return ChronoUnit.DAYS.between(lastWatched, today);
+    }
+    @Override
+    public int compareTo(Movie other) {
+        return title.compareToIgnoreCase(other.title);
     }
 }
 

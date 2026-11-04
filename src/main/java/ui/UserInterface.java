@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.io.FileNotFoundException;
+import domainmodel.SortField;
 
 public class UserInterface
 {
@@ -55,6 +56,9 @@ public class UserInterface
                     break;
                 case "7":
                     showMoviesNotWatchedForDays();
+                    break;
+                case "8":
+                    showMoviesSorted();
                     break;
                 case "0":
                     running = false;
@@ -120,6 +124,7 @@ public class UserInterface
         System.out.println("5. Slet film");
         System.out.println("6. Markér en film som set");
         System.out.println("7. Find film, du ikke har set længe");
+        System.out.println("8. Vis film sorteret efter ...");
         System.out.println("0. Afslut");
         System.out.print("Vælg: ");
     }
@@ -154,7 +159,7 @@ public class UserInterface
     }
 
     private void showAllMovies() {
-        ArrayList<Movie> movies = controller.getMovies();
+        ArrayList<Movie> movies = controller.getMoviesSortedByTitle();
 
         if (movies.isEmpty()) {
             System.out.println("Filmsamlingen er tom.");
@@ -477,6 +482,59 @@ public class UserInterface
                                 + " er ikke en dato på formen "
                                 + "dd-mm-åååå. Prøv igen."
                 );
+            }
+        }
+    }
+    private void showMoviesSorted() {
+        System.out.println("\nSortér efter:");
+        System.out.println("1. Titel");
+        System.out.println("2. Instruktør");
+        System.out.println("3. Årstal");
+        System.out.println("4. Længde");
+        System.out.println("5. Genre");
+        System.out.println("0. Annuller");
+
+        int choice = readInt("Vælg: ");
+
+        if (choice == 0) {
+            return;
+        }
+
+        SortField field;
+
+        switch (choice) {
+            case 1 -> field = SortField.TITLE;
+            case 2 -> field = SortField.DIRECTOR;
+            case 3 -> field = SortField.YEAR;
+            case 4 -> field = SortField.LENGTH;
+            case 5 -> field = SortField.GENRE;
+            default -> {
+                System.out.println("Ugyldigt valg.");
+                return;
+            }
+        }
+
+        ArrayList<Movie> movies = controller.getMoviesSortedBy(field);
+
+        if (movies.isEmpty()) {
+            System.out.println("Filmsamlingen er tom.");
+            return;
+        }
+
+        for (Movie movie : movies) {
+            System.out.println();
+            System.out.println(movie.getTitle()
+                    + " (" + movie.getYearCreated() + ")");
+            System.out.println("  Instruktør: " + movie.getDirector());
+            System.out.println("  Genre: " + movie.getGenre());
+            System.out.println("  Længde: " + movie.getLengthInMinutes()
+                    + " minutter, "
+                    + (movie.isInColor() ? "farver" : "sort-hvid"));
+
+            if (movie.hasBeenWatched()) {
+                System.out.println("  Sidst set: " + movie.getLastWatched());
+            } else {
+                System.out.println("  Sidst set: aldrig");
             }
         }
     }
