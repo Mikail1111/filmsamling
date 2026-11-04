@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class UserInterface
 {
@@ -34,6 +36,12 @@ public class UserInterface
                 case "5":
                     deleteMovie();
                     break;
+                case "6":
+                    markMovieAsWatched();
+                    break;
+                case "7":
+                    showMoviesNotWatchedForDays();
+                    break;
                 case "0":
                     System.out.println("Programmet afsluttes.");
                     running = false;
@@ -51,6 +59,8 @@ public class UserInterface
         System.out.println("3. Søg efter film");
         System.out.println("4. Rediger film");
         System.out.println("5. Slet film");
+        System.out.println("6. Markér en film som set i dag");
+        System.out.println("7. Find film, du ikke har set længe");
         System.out.println("0. Afslut");
         System.out.print("Vælg: ");
     }
@@ -230,5 +240,63 @@ public class UserInterface
                         movie.getLengthInMinutes() + " min | " +
                         movie.getGenre()
         );
+
+        if (movie.hasBeenWatched()) {
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+            String date = movie.getLastWatched().format(formatter);
+            long days = movie.getDaysSinceWatched(LocalDate.now());
+
+            System.out.println("Sidst set: " + date
+                    + " (for " + days + " dage siden)");
+        } else {
+            System.out.println("Sidst set: aldrig");
+        }
+
+        System.out.println();
+    }
+
+
+    private void markMovieAsWatched() {
+        Movie movie = selectMovie();
+
+        if (movie == null) {
+            return;
+        }
+
+        controller.markAsWatched(movie);
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        System.out.println(movie.getTitle()
+                + " er markeret som set "
+                + movie.getLastWatched().format(formatter) + ".");
+    }
+
+    private void showMoviesNotWatchedForDays() {
+        System.out.print("Hvor mange dage siden mindst? ");
+        int days = Integer.parseInt(scanner.nextLine().trim());
+
+        if (days < 0) {
+            System.out.println("Antal dage må ikke være negativt.");
+            return;
+        }
+
+        ArrayList<Movie> movies =
+                controller.getMoviesNotWatchedForDays(days);
+
+        if (movies.isEmpty()) {
+            System.out.println("Ingen film fundet.");
+            return;
+        }
+
+        System.out.println("Film, du ikke har set i mere end "
+                + days + " dage eller aldrig har set:");
+
+        for (Movie movie : movies) {
+            printMovie(movie);
+        }
     }
 }
