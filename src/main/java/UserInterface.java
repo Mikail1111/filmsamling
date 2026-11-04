@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.io.FileNotFoundException;
 
 public class UserInterface
 {
@@ -19,6 +20,10 @@ public class UserInterface
     }
 
     public void startProgram() {
+        System.out.println("Velkommen til min filmsamling!");
+
+        loadMovies();
+
         boolean running = true;
 
         while (running) {
@@ -48,12 +53,57 @@ public class UserInterface
                     showMoviesNotWatchedForDays();
                     break;
                 case "0":
-                    System.out.println("Programmet afsluttes.");
                     running = false;
                     break;
                 default:
                     System.out.println("Ugyldigt valg. Prøv igen.");
             }
+        }
+
+        saveMovies();
+        System.out.println("Farvel!");
+    }
+
+    private void loadMovies() {
+        try {
+            int count = controller.loadMovies();
+
+            System.out.println(count + " film er indlæst.");
+
+            int skipped = controller.getSkippedLineCount();
+
+            if (skipped > 0) {
+                System.out.println(
+                        "Advarsel: " + skipped
+                                + " linje(r) i filen kunne ikke læses "
+                                + "og er sprunget over."
+                );
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println(
+                    "Der er ingen gemt filmsamling endnu "
+                            + "– du starter med en tom samling."
+            );
+        }
+    }
+    private void saveMovies() {
+        try {
+            boolean saved = controller.saveMoviesIfChanged();
+
+            if (saved) {
+                System.out.println("Filmsamlingen er gemt.");
+            } else {
+                System.out.println(
+                        "Ingen ændringer – intet at gemme."
+                );
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println(
+                    "Fejl: Filmsamlingen kunne ikke gemmes. "
+                            + e.getMessage()
+            );
         }
     }
 

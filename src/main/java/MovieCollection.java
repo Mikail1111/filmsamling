@@ -19,6 +19,9 @@ public class MovieCollection
 
         movies.add(movie);
     }
+    public void addMovie(Movie movie) {
+        movies.add(movie);
+    }
 
     // Her henter vi alle film
     public ArrayList<Movie> getMovies()

@@ -1,56 +1,98 @@
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.time.LocalDate;
 
 public class Controller
 {
     private MovieCollection movieCollection;
+    private FileHandler fileHandler;
+    private boolean changed;
 
     public Controller() {
         movieCollection = new MovieCollection();
+        fileHandler = new FileHandler("movies.csv");
+        changed = false;
     }
 
-    // Tilføjer en film
     public void addMovie(String title, String director,
                          int yearCreated, boolean inColor,
                          int lengthInMinutes, String genre) {
 
-        movieCollection.addMovie(title, director, yearCreated,
-                inColor, lengthInMinutes, genre);
+        movieCollection.addMovie(title, director,
+                yearCreated, inColor, lengthInMinutes, genre);
+
+        changed = true;
     }
 
-    // Henter alle film
     public ArrayList<Movie> getMovies() {
         return movieCollection.getMovies();
     }
 
-    // Søger efter en film
     public ArrayList<Movie> searchMovies(String searchText) {
         return movieCollection.searchMovies(searchText);
     }
 
-    // Redigerer en film
     public boolean editMovie(Movie movie, String title,
                              String director, int yearCreated,
                              boolean inColor, int lengthInMinutes,
                              String genre) {
 
-        return movieCollection.editMovie(movie, title, director,
-                yearCreated, inColor, lengthInMinutes, genre);
+        boolean success = movieCollection.editMovie(
+                movie, title, director, yearCreated,
+                inColor, lengthInMinutes, genre
+        );
+
+        if (success) {
+            changed = true;
+        }
+
+        return success;
     }
 
-    // Sletter en film
     public boolean deleteMovie(Movie movie) {
-        return movieCollection.deleteMovie(movie);
+        boolean success = movieCollection.deleteMovie(movie);
+
+        if (success) {
+            changed = true;
+        }
+
+        return success;
     }
 
-    // Her kan vi finde film der ikke er blevet set længe
-    public void markAsWatched(Movie movie, LocalDate date)
-    {
+    public void markAsWatched(Movie movie, LocalDate date) {
         movie.markAsWatched(date);
+        changed = true;
     }
+
     public ArrayList<Movie> getMoviesNotWatchedForDays(int days) {
         LocalDate limit = LocalDate.now().minusDays(days);
-
         return movieCollection.getMoviesNotWatchedSince(limit);
+    }
+
+    public int loadMovies() throws FileNotFoundException {
+        ArrayList<Movie> loadedMovies = fileHandler.loadMovies();
+
+        for (Movie movie : loadedMovies) {
+            movieCollection.addMovie(movie);
+        }
+
+        return loadedMovies.size();
+    }
+
+    public boolean saveMoviesIfChanged()
+            throws FileNotFoundException {
+
+        if (!changed) {
+            return false;
+        }
+
+        fileHandler.saveMovies(movieCollection.getMovies());
+        changed = false;
+
+        return true;
+    }
+
+    public int getSkippedLineCount() {
+        return fileHandler.getSkippedLineCount();
     }
 }
