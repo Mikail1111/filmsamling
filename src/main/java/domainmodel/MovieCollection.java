@@ -1,3 +1,5 @@
+package domainmodel;
+
 import java.util.ArrayList;
 import java.time.LocalDate;
 

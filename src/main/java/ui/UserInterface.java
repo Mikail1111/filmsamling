@@ -1,3 +1,7 @@
+package ui;
+import domainmodel.Controller;
+import domainmodel.Movie;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;

@@ -1,3 +1,7 @@
+package domainmodel;
+
+import datasource.FileHandler;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.time.LocalDate;
