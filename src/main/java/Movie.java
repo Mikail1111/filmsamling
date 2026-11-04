@@ -17,9 +17,6 @@ public class Movie
             this.genre = genre;
         }
 
-        public boolean isInColor() {
-            return inColor;
-        }
 
         // ... resten af getterne og setterne
     public String getTitle()
@@ -73,5 +70,5 @@ public class Movie
         this.genre = genre;
     }
 
-    }
 }
+
