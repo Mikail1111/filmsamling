@@ -72,15 +72,11 @@ public class UserInterface
         System.out.print("Instruktør: ");
         String director = scanner.nextLine();
 
-        System.out.print("Udgivelsesår: ");
-        int year = Integer.parseInt(scanner.nextLine().trim());
+        int year = readInt("Udgivelsesår: ");
 
-        System.out.print("Er filmen i farver? (ja/nej): ");
-        boolean inColor = scanner.nextLine().trim()
-                .equalsIgnoreCase("ja");
+        boolean inColor = readYesNo("Er filmen i farver? (ja/nej): ");
 
-        System.out.print("Længde i minutter: ");
-        int length = Integer.parseInt(scanner.nextLine().trim());
+        int length = readInt("Længde i minutter: ");
 
         System.out.print("Genre: ");
         String genre = scanner.nextLine();
@@ -142,23 +138,20 @@ public class UserInterface
             director = movie.getDirector();
         }
 
-        System.out.print("År (" + movie.getYearCreated() + "): ");
-        String yearInput = scanner.nextLine().trim();
-        int year = yearInput.isEmpty()
-                ? movie.getYearCreated()
-                : Integer.parseInt(yearInput);
+        int year = readOptionalInt(
+                "År (" + movie.getYearCreated() + "): ",
+                movie.getYearCreated()
+        );
 
-        System.out.print("Farver (ja/nej): ");
-        String colorInput = scanner.nextLine().trim();
-        boolean inColor = colorInput.isEmpty()
-                ? movie.isInColor()
-                : colorInput.equalsIgnoreCase("ja");
+        boolean inColor = readOptionalYesNo(
+                "Farver (ja/nej, Enter = behold): ",
+                movie.isInColor()
+        );
 
-        System.out.print("Længde (" + movie.getLengthInMinutes() + "): ");
-        String lengthInput = scanner.nextLine().trim();
-        int length = lengthInput.isEmpty()
-                ? movie.getLengthInMinutes()
-                : Integer.parseInt(lengthInput);
+        int length = readOptionalInt(
+                "Længde (" + movie.getLengthInMinutes() + "): ",
+                movie.getLengthInMinutes()
+        );
 
         System.out.print("Genre (" + movie.getGenre() + "): ");
         String genre = scanner.nextLine();
@@ -183,10 +176,11 @@ public class UserInterface
             return;
         }
 
-        System.out.print("Er du sikker på, at du vil slette filmen? (ja/nej): ");
-        String answer = scanner.nextLine().trim();
+        boolean answer = readYesNo(
+                "Er du sikker på, at du vil slette filmen? (ja/nej): "
+        );
 
-        if (answer.equalsIgnoreCase("ja")) {
+        if (answer) {
             if (controller.deleteMovie(movie)) {
                 System.out.println("Filmen er blevet slettet!");
             } else {
@@ -214,15 +208,24 @@ public class UserInterface
             printMovie(matches.get(i));
         }
 
-        System.out.print("Vælg filmens nummer (0 for at annullere): ");
-        int choice = Integer.parseInt(scanner.nextLine().trim());
+        int choice = readInt(
+                "Vælg filmens nummer (0 for at annullere): "
+        );
 
-        if (choice == 0) {
-            return null;
+        while (choice < 0 || choice > matches.size()) {
+            System.out.println(
+                    "Vælg et nummer mellem 1 og "
+                            + matches.size()
+                            + " eller 0 for at fortryde."
+            );
+
+            choice = readInt(
+                    "Vælg filmens nummer (0 for at annullere): "
+            );
         }
 
-        if (choice < 1 || choice > matches.size()) {
-            System.out.println("Ugyldigt filmnummer.");
+        if (choice == 0) {
+            System.out.println("Handlingen blev annulleret.");
             return null;
         }
 
@@ -257,7 +260,6 @@ public class UserInterface
         System.out.println();
     }
 
-
     private void markMovieAsWatched() {
         Movie movie = selectMovie();
 
@@ -276,12 +278,11 @@ public class UserInterface
     }
 
     private void showMoviesNotWatchedForDays() {
-        System.out.print("Hvor mange dage siden mindst? ");
-        int days = Integer.parseInt(scanner.nextLine().trim());
+        int days = readInt("Hvor mange dage siden mindst? ");
 
-        if (days < 0) {
+        while (days < 0) {
             System.out.println("Antal dage må ikke være negativt.");
-            return;
+            days = readInt("Hvor mange dage siden mindst? ");
         }
 
         ArrayList<Movie> movies =
@@ -297,6 +298,82 @@ public class UserInterface
 
         for (Movie movie : movies) {
             printMovie(movie);
+        }
+    }
+
+    private int readInt(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println(
+                        " " + input + " er ikke et helt tal. Prøv igen."
+                );
+            }
+        }
+    }
+
+    private boolean readYesNo(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.equalsIgnoreCase("ja")
+                    || input.equalsIgnoreCase("j")) {
+                return true;
+            }
+
+            if (input.equalsIgnoreCase("nej")
+                    || input.equalsIgnoreCase("n")) {
+                return false;
+            }
+
+            System.out.println("Svar ja eller nej.");
+        }
+    }
+
+    private int readOptionalInt(String prompt, int oldValue) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return oldValue;
+            }
+
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println(
+                        " " + input + "  er ikke et helt tal. Prøv igen."
+                );
+            }
+        }
+    }
+
+    private boolean readOptionalYesNo(String prompt, boolean oldValue) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return oldValue;
+            }
+
+            if (input.equalsIgnoreCase("ja")
+                    || input.equalsIgnoreCase("j")) {
+                return true;
+            }
+
+            if (input.equalsIgnoreCase("nej")
+                    || input.equalsIgnoreCase("n")) {
+                return false;
+            }
+
+            System.out.println("Svar ja eller nej, eller tryk Enter for at beholde den gamle værdi.");
         }
     }
 }
